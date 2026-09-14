@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+  <title>Cautiva Business</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">C</span><div><strong>CAUTIVA</strong><small>BUSINESS</small></div></div>
+      <nav>
+        <a class="nav-item active" href="#dashboard" data-view="dashboard">Dashboard</a>
+        <a class="nav-item" href="#presupuestos" data-view="presupuestos">Presupuestos</a>
+        <a class="nav-item" href="#clientes" data-view="clientes">Clientes</a>
+        <a class="nav-item" href="#pagos" data-view="pagos">Pagos</a>
+        <a class="nav-item" href="#proyectos" data-view="proyectos">Proyectos</a>
+        <a class="nav-item" href="#configuracion" data-view="configuracion">Configuración</a>
+      </nav>
+      <button id="logoutBtn" class="logout">Cerrar sesión</button>
+    </aside>
+    <main class="main-content">
+      <header class="topbar"><div><span class="eyebrow">GESTIÓN EMPRESARIAL</span><h1 id="pageTitle">Dashboard</h1></div><div id="userBadge" class="user-badge">Usuario</div></header>
+      <section id="view" class="view"></section>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+  <title>Acceso · Cautiva Business</title>
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+  <main class="login-page">
+    <section class="login-card">
+      <div class="brand"><span class="brand-mark">C</span><div><strong>CAUTIVA</strong><small>BUSINESS</small></div></div>
+      <p class="eyebrow">ACCESO SEGURO</p>
+      <h1>Iniciar sesión</h1>
+      <p class="subtitle">Accede al sistema de gestión empresarial.</p>
+      <form id="loginForm" novalidate>
+        <label>Correo electrónico<input id="email" type="email" autocomplete="username" required></label>
+        <label>Contraseña<input id="password" type="password" autocomplete="current-password" minlength="6" required></label>
+        <button type="submit">Ingresar</button>
+        <p id="loginError" class="error" role="alert"></p>
+      </form>
+      <p class="security-note">La autenticación será gestionada por Firebase Authentication. Las contraseñas no se almacenan en esta aplicación.</p>
+    </section>
+  </main>
+  <script type="module" src="js/login.js"></script>
+</body>
+</html>

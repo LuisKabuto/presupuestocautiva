@@ -1,0 +1,36 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Fase inicial: solo usuarios autenticados pueden acceder a los datos.
+    // En la siguiente fase aplicaremos permisos por rol (admin, ventas, operaciones, etc.).
+    match /usuarios/{userId} {
+      allow read, create, update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    match /clientes/{documentId} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /presupuestos/{documentId} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /pagos/{documentId} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /proyectos/{documentId} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /incidencias/{documentId} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /configuracion/{documentId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

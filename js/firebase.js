@@ -1,11 +1,12 @@
-// Configuración de Firebase V3.
-// No colocar contraseñas, tokens privados ni secretos aquí.
-// Próximo paso: reemplazar estos valores con la configuración Web de tu proyecto Firebase.
+// Configuración pública de Firebase para Cautiva Business V3.
+// Estas variables NO son contraseñas ni secretos de servidor.
+// Nunca colocar aquí claves privadas, tokens de servicio o credenciales administrativas.
 export const firebaseConfig = {
-  apiKey: "REEMPLAZAR",
-  authDomain: "REEMPLAZAR",
-  projectId: "REEMPLAZAR",
-  storageBucket: "REEMPLAZAR",
-  messagingSenderId: "REEMPLAZAR",
-  appId: "REEMPLAZAR"
+  apiKey: "AIzaSyAMfZNmfN1YRZ-BJi_b_TZWIBUBCgMWUIQ",
+  authDomain: "presupuestocautiva.firebaseapp.com",
+  databaseURL: "https://presupuestocautiva-default-rtdb.firebaseio.com",
+  projectId: "presupuestocautiva",
+  storageBucket: "presupuestocautiva.firebasestorage.app",
+  messagingSenderId: "593228238693",
+  appId: "1:593228238693:web:cf3b03814761c2e0c15b8c"
 };

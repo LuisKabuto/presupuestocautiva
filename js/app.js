@@ -1,5 +1,6 @@
 import { auth, onAuthStateChanged, signOut } from "./auth.js";
 import { ensureUserProfile } from "./usuarios.js";
+import { getDashboardStats, dashboardHTML } from "./dashboard.js";
 
 const view = document.querySelector("#view");
 const title = document.querySelector("#pageTitle");
@@ -7,10 +8,7 @@ const badge = document.querySelector("#userBadge");
 const logout = document.querySelector("#logoutBtn");
 
 const views = {
-  dashboard: {
-    title: "Dashboard",
-    html: `<div class="grid kpis"><article class="card"><h3>Ventas</h3><div class="metric">$0.00</div><p class="muted">Este mes</p></article><article class="card"><h3>Cobrado</h3><div class="metric">$0.00</div><p class="muted">Pagos registrados</p></article><article class="card"><h3>Por cobrar</h3><div class="metric">$0.00</div><p class="muted">Saldo pendiente</p></article><article class="card"><h3>Proyectos</h3><div class="metric">0</div><p class="muted">En ejecución</p></article></div><h2 class="section-title">Cautiva Business V3</h2><article class="card"><h3>Base del sistema</h3><p class="muted">Arquitectura V3 conectada a Firebase. El perfil del usuario autenticado se guarda en Firestore.</p></article>`
-  },
+  dashboard: { title: "Dashboard" },
   presupuestos: { title: "Presupuestos", html: `<article class="card"><h3>Módulo de presupuestos</h3><p class="muted">Aquí construiremos el flujo de creación, edición, aprobación, PDF y seguimiento.</p></article>` },
   clientes: { title: "Clientes", html: `<article class="card"><h3>Clientes</h3><p class="muted">Directorio centralizado de clientes y empresas.</p></article>` },
   pagos: { title: "Pagos", html: `<article class="card"><h3>Pagos</h3><p class="muted">Registro de pagos, cuentas, referencias y comprobantes.</p></article>` },
@@ -18,11 +16,24 @@ const views = {
   configuracion: { title: "Configuración", html: `<article class="card"><h3>Configuración y seguridad</h3><p class="muted">Usuarios, roles, empresa, IVA, tasa BCV, cuentas y parámetros del sistema.</p></article>` }
 };
 
-function render(name) {
+async function render(name) {
   const item = views[name] || views.dashboard;
   title.textContent = item.title;
-  view.innerHTML = item.html;
   document.querySelectorAll(".nav-item").forEach(el => el.classList.toggle("active", el.dataset.view === name));
+
+  if (name === "dashboard") {
+    view.innerHTML = `<article class="card loading-card"><p class="muted">Consultando información...</p></article>`;
+    try {
+      const stats = await getDashboardStats();
+      view.innerHTML = dashboardHTML(stats);
+    } catch (error) {
+      console.error("Error cargando Dashboard:", error);
+      view.innerHTML = `<article class="card"><h3>No se pudo cargar el Dashboard</h3><p class="muted">La sesión está activa, pero Firestore no respondió correctamente. Revisa las reglas y la configuración de la base de datos.</p></article>`;
+    }
+    return;
+  }
+
+  view.innerHTML = item.html;
 }
 
 document.querySelectorAll(".nav-item").forEach(el => el.addEventListener("click", event => {
@@ -40,13 +51,12 @@ onAuthStateChanged(auth, async user => {
     return;
   }
 
-  badge.textContent = user.email || "Usuario";
-
   try {
-    await ensureUserProfile(user);
-    render(location.hash.slice(1) || "dashboard");
+    const profile = await ensureUserProfile(user);
+    badge.textContent = profile?.rol ? `${user.email} · ${profile.rol}` : (user.email || "Usuario");
+    await render(location.hash.slice(1) || "dashboard");
   } catch (error) {
-    console.error("Error inicializando el perfil de usuario:", error);
-    view.innerHTML = `<article class="card"><h3>No se pudo conectar con la base de datos</h3><p class="muted">Revisa las reglas de seguridad de Firestore. La autenticación funciona, pero Firestore todavía no está autorizando esta operación.</p></article>`;
+    console.error("Error inicializando Cautiva Business:", error);
+    view.innerHTML = `<article class="card"><h3>No se pudo inicializar el sistema</h3><p class="muted">La autenticación funciona, pero no se pudo leer el perfil en Firestore.</p></article>`;
   }
 });

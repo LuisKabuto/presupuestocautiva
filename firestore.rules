@@ -2,8 +2,6 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Fase inicial: solo usuarios autenticados pueden acceder a los datos.
-    // En la siguiente fase aplicaremos permisos por rol (admin, ventas, operaciones, etc.).
     match /usuarios/{userId} {
       allow read, create, update: if request.auth != null && request.auth.uid == userId;
       allow delete: if false;
@@ -19,6 +17,32 @@ service cloud.firestore {
 
     match /pagos/{documentId} {
       allow read, write: if request.auth != null;
+    }
+
+    match /solicitudes_pago/{documentId} {
+      // El cliente solo puede crear una solicitud asociada a un enlace activo.
+      // Nunca puede crear directamente un pago verificado.
+      allow create: if
+        exists(/databases/$(database)/documents/enlaces_pago/$(request.resource.data.token)) &&
+        get(/databases/$(database)/documents/enlaces_pago/$(request.resource.data.token)).data.activo == true &&
+        request.resource.data.keys().hasAll([
+          'token', 'quoteId', 'numero', 'oid', 'comprobanteData', 'estado', 'createdAt'
+        ]) &&
+        request.resource.data.estado == 'PENDIENTE' &&
+        request.resource.data.oid is string &&
+        request.resource.data.oid.size() > 0 &&
+        request.resource.data.oid.size() <= 80 &&
+        request.resource.data.comprobanteData is string &&
+        request.resource.data.comprobanteData.size() < 700000;
+
+      allow read, update: if request.auth != null;
+      allow delete: if false;
+    }
+
+    match /enlaces_pago/{token} {
+      // El cliente solo puede consultar un enlace activo que ya fue generado por Cautiva.
+      allow read: if resource.data.activo == true;
+      allow create, update, delete: if request.auth != null;
     }
 
     match /proyectos/{documentId} {

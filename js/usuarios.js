@@ -20,7 +20,7 @@ export async function ensureUserProfile(user) {
     uid: user.uid,
     email: user.email || "",
     nombre: user.displayName || "",
-    rol: "admin",
+    rol: "usuario",
     activo: true,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()

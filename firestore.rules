@@ -20,11 +20,13 @@ service cloud.firestore {
     }
 
     match /solicitudes_pago/{documentId} {
-      // El cliente solo puede crear una solicitud asociada a un enlace activo.
-      // Nunca puede crear directamente un pago verificado.
+      // Cliente no autenticado: solo puede crear una solicitud PENDIENTE
+      // mediante un enlace de pago activo y sin alterar su presupuesto asociado.
       allow create: if
         exists(/databases/$(database)/documents/enlaces_pago/$(request.resource.data.token)) &&
         get(/databases/$(database)/documents/enlaces_pago/$(request.resource.data.token)).data.activo == true &&
+        request.resource.data.quoteId == get(/databases/$(database)/documents/enlaces_pago/$(request.resource.data.token)).data.quoteId &&
+        request.resource.data.numero == get(/databases/$(database)/documents/enlaces_pago/$(request.resource.data.token)).data.numero &&
         request.resource.data.keys().hasAll([
           'token', 'quoteId', 'numero', 'oid', 'comprobanteData', 'estado', 'createdAt'
         ]) &&
@@ -40,7 +42,7 @@ service cloud.firestore {
     }
 
     match /enlaces_pago/{token} {
-      // El cliente solo puede consultar un enlace activo que ya fue generado por Cautiva.
+      // El cliente puede consultar únicamente enlaces activos generados por Cautiva.
       allow read: if resource.data.activo == true;
       allow create, update, delete: if request.auth != null;
     }

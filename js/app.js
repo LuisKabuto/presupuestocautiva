@@ -1,6 +1,7 @@
 import { auth, onAuthStateChanged, signOut } from "./auth.js";
 import { ensureUserProfile } from "./usuarios.js";
 import { getDashboardStats, dashboardHTML } from "./dashboard.js";
+import { renderClientes } from "./clientes.js";
 
 const view = document.querySelector("#view");
 const title = document.querySelector("#pageTitle");
@@ -10,7 +11,7 @@ const logout = document.querySelector("#logoutBtn");
 const views = {
   dashboard: { title: "Dashboard" },
   presupuestos: { title: "Presupuestos", html: `<article class="card"><h3>Módulo de presupuestos</h3><p class="muted">Aquí construiremos el flujo de creación, edición, aprobación, PDF y seguimiento.</p></article>` },
-  clientes: { title: "Clientes", html: `<article class="card"><h3>Clientes</h3><p class="muted">Directorio centralizado de clientes y empresas.</p></article>` },
+  clientes: { title: "Clientes" },
   pagos: { title: "Pagos", html: `<article class="card"><h3>Pagos</h3><p class="muted">Registro de pagos, cuentas, referencias y comprobantes.</p></article>` },
   proyectos: { title: "Proyectos", html: `<article class="card"><h3>Proyectos</h3><p class="muted">Seguimiento de fases, responsables, fechas y avance.</p></article>` },
   configuracion: { title: "Configuración", html: `<article class="card"><h3>Configuración y seguridad</h3><p class="muted">Usuarios, roles, empresa, IVA, tasa BCV, cuentas y parámetros del sistema.</p></article>` }
@@ -30,6 +31,11 @@ async function render(name) {
       console.error("Error cargando Dashboard:", error);
       view.innerHTML = `<article class="card"><h3>No se pudo cargar el Dashboard</h3><p class="muted">La sesión está activa, pero Firestore no respondió correctamente. Revisa las reglas y la configuración de la base de datos.</p></article>`;
     }
+    return;
+  }
+
+  if (name === "clientes") {
+    await renderClientes(view);
     return;
   }
 

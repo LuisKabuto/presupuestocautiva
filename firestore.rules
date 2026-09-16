@@ -2,21 +2,37 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin' &&
+        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.activo != false;
+    }
+
     match /usuarios/{userId} {
-      allow read, create, update: if request.auth != null && request.auth.uid == userId;
-      allow delete: if false;
+      allow create: if isSignedIn() && request.auth.uid == userId &&
+        request.resource.data.rol == 'usuario';
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow update: if isAdmin() ||
+        (isSignedIn() && request.auth.uid == userId &&
+         request.resource.data.rol == resource.data.rol &&
+         request.resource.data.uid == resource.data.uid);
+      allow delete: if isAdmin();
     }
 
     match /clientes/{documentId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isSignedIn();
     }
 
     match /presupuestos/{documentId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isSignedIn();
     }
 
     match /pagos/{documentId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isSignedIn();
     }
 
     match /solicitudes_pago/{documentId} {
@@ -25,39 +41,36 @@ service cloud.firestore {
         get(/databases/$(database)/documents/enlaces_pago/$(request.resource.data.token)).data.activo == true &&
         request.resource.data.quoteId == get(/databases/$(database)/documents/enlaces_pago/$(request.resource.data.token)).data.quoteId &&
         request.resource.data.numero == get(/databases/$(database)/documents/enlaces_pago/$(request.resource.data.token)).data.numero &&
-        request.resource.data.keys().hasAll([
-          'token', 'quoteId', 'numero', 'oid', 'comprobanteData', 'estado', 'createdAt'
-        ]) &&
+        request.resource.data.keys().hasAll(['token','quoteId','numero','oid','comprobanteData','estado','createdAt']) &&
         request.resource.data.estado == 'PENDIENTE' &&
         request.resource.data.oid is string &&
         request.resource.data.oid.size() > 0 &&
         request.resource.data.oid.size() <= 80 &&
         request.resource.data.comprobanteData is string &&
         request.resource.data.comprobanteData.size() < 700000;
-
-      allow read, update: if request.auth != null;
+      allow read, update: if isSignedIn();
       allow delete: if false;
     }
 
     match /enlaces_pago/{token} {
       allow read: if resource.data.activo == true;
-      allow create, update, delete: if request.auth != null;
+      allow create, update, delete: if isSignedIn();
     }
 
     match /proyectos/{documentId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isSignedIn();
     }
 
     match /fases_proyecto/{documentId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isSignedIn();
     }
 
     match /incidencias/{documentId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isSignedIn();
     }
 
     match /configuracion/{documentId} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isAdmin();
     }
   }
 }

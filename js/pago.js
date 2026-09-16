@@ -45,9 +45,11 @@ async function init() {
     const snap = await getDoc(doc(db, "enlaces_pago", token));
     if (!snap.exists() || snap.data().activo === false) { info.innerHTML = "<strong>Enlace no disponible</strong><p>El enlace de pago no está activo.</p>"; return; }
     const payment = snap.data();
+    const pendingUSD = Number(payment.saldoUSD ?? payment.totalUSD) || 0;
     let rate = 0;
     try { rate = await getBCV(); } catch (e) { console.warn(e); }
-    info.innerHTML = `<div class="payment-detail"><span>Presupuesto</span><strong>${payment.numero || "—"}</strong></div><div class="payment-detail"><span>Monto pendiente máximo</span><strong>$${money(payment.saldoUSD ?? payment.totalUSD)}</strong></div>${rate ? `<div class="payment-detail"><span>Tasa BCV de referencia hoy</span><strong>Bs ${bs(rate)} / $</strong></div>` : ""}<p class="payment-note">La tasa mostrada es informativa. El pago será verificado por Cautiva antes de autorizar el trabajo.</p>`;
+    const pendingBs = rate ? pendingUSD * rate : 0;
+    info.innerHTML = `<div class="payment-detail"><span>Presupuesto</span><strong>${payment.numero || "—"}</strong></div><div class="payment-detail"><span>Monto pendiente máximo</span><strong>$${money(pendingUSD)}</strong></div>${rate ? `<div class="payment-detail"><span>Tasa BCV vigente hoy</span><strong>Bs ${bs(rate)} / $</strong></div><div class="payment-detail payment-total-bs"><span>Monto equivalente a pagar hoy</span><strong>Bs ${bs(pendingBs)}</strong></div>` : ""}<p class="payment-note">El monto en Bs se calcula automáticamente con la tasa BCV vigente al momento de consultar este enlace. El pago será verificado por Cautiva antes de autorizar el trabajo.</p>`;
     form.classList.remove("hidden");
     form.addEventListener("submit", async event => {
       event.preventDefault();

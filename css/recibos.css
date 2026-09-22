@@ -1,0 +1,1 @@
+.receipt-form-card{padding:24px}.receipt-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.receipt-grid label{display:flex;flex-direction:column;gap:7px;font-size:12px}.receipt-grid .full{grid-column:1/-1}@media(max-width:700px){.receipt-grid{grid-template-columns:1fr}.receipt-grid .full{grid-column:auto}}
